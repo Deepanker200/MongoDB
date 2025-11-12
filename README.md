@@ -27,20 +27,21 @@
     - db.cars.find({fuel_type:"Diesel"},"{name:0})          //Except name it gives all details of the car whose fuel_type is Diesel    
 
     - db.cars.find({features:"Sunroof"})        //features is an array inside document
-    - db.cars.find({"engine.type":"Turbocharged"})      //engine is an object inside document(Nested Object)
+    - db.cars.find({"engine.type":"Turbocharged"})      //engine is an object inside document(Objec/Nested Document)
 
 # Update
-- db.cars.updateOne({model:"XUV"},{$set:{color:"Pink"}})        //sets new value or add if not existed
+- db.cars.updateOne({model:"XUV"},{$set:{color:"Pink"}})        //sets new field or add if not existed in the existing document
 - db.cars.updateOne({model:"Nexon"},{$push:{features:"Heated Seats"}})      //Only for array to adding new value
 
 - db.cars.updateOne({model:"Nexon"},{$pull:{features:"Heated Seats"}})      //Only for array to remove a value
 
 - UpdateMany
 - db.cars.updateMany({fuel_type:"Petrol"},{$set:{alloys:"yes"}})
+
 - db.cars.updateOne({model:"Nexon"},{$push:{features:{$each:["Wireless Charging","Voice Control"]}}})   //For adding new values to the array
 - db.cars.updateOne({model:"Nexon"},{$unset:{color:""}})        //For removing or unset the field
 - db.cars.updateMany({},{$set:{color:"Blue"}})
-- db.cars.updateOne({model:"Venue"},{$set:{color:"Black"}},{upsert:true})
+- db.cars.updateOne({model:"Venue"},{$set:{color:"Black"}},{upsert:true})   //Creates new document if not existed
 
 # Delete
 
