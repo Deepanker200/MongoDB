@@ -47,3 +47,46 @@
 
 -db.cars.deleteOne({model:"Venue"})
 - db.cars.deleteMany({color:"Black"})
+
+# Data Types
+- ObjectId
+- String
+- Integer
+- Double
+- Boolean
+- Array
+- Object/Embedded Document
+- Date date:new Date()
+- Timestamps ts:new Timestamp()
+- Null
+- Decimal128
+
+# Operators
+- Comparison Operators
+    - $eq =
+    - $lt <
+    - $gt >  db.cars.find({"engine.cc":{$gt:1400}})
+    - $lte <=
+    - $gte >=
+    - $ne !=
+    - $in   db.cars.find({"engine.cc":{$in:[1400,1598]}})       //Checks one field against multiple possible values.
+    - $nin
+
+- Logical Operators
+    - AND
+        db.cars.find({
+            $and:[
+                {condition1},
+                {condition2}
+            ]
+        })
+
+    - OR        //Checks different fields or different conditions across fields.
+        db.cars.find({
+            $or:[
+                {condition1},
+                {condition2}
+            ]
+        })
+    - NOR
+    - NOT
