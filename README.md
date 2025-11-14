@@ -90,3 +90,38 @@
         })
     - NOR
     - NOT
+
+- Element Operators
+    - exists operator
+    db.cars.find({fuel_type:{$exists:true}})        //It will fetch data that has fuel_type field in the document
+
+    - $type
+    db.cars.find({name:{$type:"string"}})       //If int then no data will be fetched
+
+    // Here we can filter the content based on BASON type like string, bool etc
+    // This can be useful to find field with null values
+    // {name:{$type:"string"}}
+
+- Array Operators
+    - $size
+    //Return all documents that match specified array size
+    db.cars.find({features:{$size:3}})
+
+    - $all
+    // Return all documents that match the pattern 
+    db.cars.find({features:{$all:['Bluetooth','ABS']}})
+
+
+# Cursor Methods
+- Count
+db.cars.find().count()
+db.cars.find({fuel_type:"Petrol"}).count()
+
+- Sort
+db.cars.find({},{model:1}).sort({model:1})  //-1 for descending order
+
+- Limit
+db.cars.find().limit(2)     //Returns first 2 docs
+
+- Skip
+db.cars.find().skip(2)      //Skips first 2 documents
