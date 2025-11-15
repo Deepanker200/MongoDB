@@ -125,3 +125,5 @@ db.cars.find().limit(2)     //Returns first 2 docs
 
 - Skip
 db.cars.find().skip(2)      //Skips first 2 documents
+
+# Aggregation Framework
