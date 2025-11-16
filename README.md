@@ -126,4 +126,179 @@ db.cars.find().limit(2)     //Returns first 2 docs
 - Skip
 db.cars.find().skip(2)      //Skips first 2 documents
 
-# Aggregation Framework
+# Aggregate Framework
+
+    - Filtering
+    - Grouping
+    - Sorting
+    - Reshaping
+    - Summarizing Data using a pipeline
+
+- Group
+    db.cars.aggregate([
+        {$group:{_id:"$maker"}}
+    ])
+
+    - Find no. of cars in each maker
+
+        db.cars.aggregate([
+        {$group:{
+            _id:"$maker",
+            TotalCars:{$sum:1}      //1 means number of documents to be printed
+            }
+        }
+        ])
+
+        - Accumulator Operators
+
+            - $sum
+            - $avg
+                - db.cars.aggregate([ { $group: { _id: "$maker", AvgPrice: { $avg: "$price" } } }] )
+            - $min
+            - $max
+            - $push
+            - $addToSet
+
+        Hyundai cars having engine of more than 1200cc
+        db.cars.aggregate(
+            [{$match:
+            {
+                maker:"Hyundai",
+                "engine.cc":{$gt:1200}
+            }
+            }]
+        )
+
+        //When we are using find we use multiple conditions and not stages
+
+        or 
+
+        db.cars.find({ maker: "Hyundai", "engine.cc": { $gt: 1200 } })
+
+        or
+        
+        db.cars.find({  $and: [{ maker: "Hyundai" },{ "engine.cc": {$gt:1200 }}]})
+
+    - Print Total no. of Hyundai cars
+        db.cars.aggregate([ {$match:{ maker:"Hyundai"}}, {$count:"Total_cars"}])    //stage1 and stage2
+
+    - Count no. of diesel and petrol cars of Hyundai Brand
+        db.cars.aggregate([
+            {
+                $match:{
+                    maker:"Hyundai"
+                }
+            },
+            {$group:{
+                _id:"$fuel_type",
+                TotalCars:{$sum:1}
+            }}
+        ])
+
+        //Answer
+
+        db.cars.aggregate([
+        {
+            $match: {
+            maker: "Hyundai",
+            fuel_type: { $in: ["Petrol", "Diesel"] }
+            }
+        },
+        {
+            $group: {
+            _id: "$fuel_type",
+            TotalCars: { $sum: 1 }
+            }
+        }
+        ])
+
+
+    - Find all the Hyundai cars and only show Maker, Model and fuel_type details
+        db.cars.aggregate([
+            {$match:{
+                maker:"Hyundai"
+            }},
+            {$project:{
+                _id:0,
+                maker:1,
+                model:1,
+                fuel_type:1
+            }}
+        ])
+
+    - For the previous output, sort the data based on Model
+        db.cars.aggregate([
+            {$match:{
+                maker:"Hyundai"
+            }},
+            {$project:{
+                _id:0,
+                maker:1,
+                model:1,
+                fuel_type:1
+            }},
+            {$sort:{model:1}}
+        ])
+
+    - Group the cars by Maker and then sort based on count(no. of cars)~ For sorting and counting both
+
+        - db.cars.aggregate(
+            {$sortByCount:"$maker"}
+        )
+    
+    - unwind
+        - db.cars.unwind([{$unwind:"$owners"}]) //to make seperate documents having 2 or 3 owners
+    
+# String Operators
+    - db.cars.aggregate([
+    {$match:{maker:"Hyundai"}},
+    {$project:{ 
+        _id:0, Car_Name:{$concat:[ "$maker"," ","$model"]
+        }}
+    }])
+    
+    Upper Case + Concat[uses array]
+
+    - db.cars.aggregate([
+        {$match:{maker:"Hyundai"}},
+        {$project:{
+            _id:0,
+            Car_Name:{$toUpper:{$concat:[
+                "$maker"," ","$model"
+            ]}}
+        }}
+    ])
+
+
+    - $regexMatch
+
+    Performs a regular expression(regex) pattern matching and returns true or false
+
+    Add a flag is_diesel=true/false for each car    
+    - db.cars.aggregate([
+        {$project:{
+            _id:0,
+            model:1,
+            is_diesel:{
+                $regexMatch:{
+                    input:"$fuel_type",
+                    regex:"Dies"
+                }
+            }
+        }}
+    ])
+
+    - $out
+
+    After aggregating, store the result in an another collection 'hyundai_cars'
+
+    db.cars.aggregate([
+        {$match:{maker:"Hyundai"}},
+        {$project:{
+            _id:0,
+            Car_Name:{$toUpper:{$concat:[
+                "$maker"," ","$model"
+            ]}}
+        }},
+        {$out:"hyundai_cars"}
+    ])
