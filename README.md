@@ -257,7 +257,7 @@ db.cars.find().skip(2)      //Skips first 2 documents
         }}
     }])
     
-    Upper Case + Concat[uses array]
+    - Upper Case + Concat[uses array]
 
     - db.cars.aggregate([
         {$match:{maker:"Hyundai"}},
@@ -292,7 +292,7 @@ db.cars.find().skip(2)      //Skips first 2 documents
 
     After aggregating, store the result in an another collection 'hyundai_cars'
 
-    db.cars.aggregate([
+    - db.cars.aggregate([
         {$match:{maker:"Hyundai"}},
         {$project:{
             _id:0,
