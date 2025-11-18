@@ -302,3 +302,21 @@ db.cars.find().skip(2)      //Skips first 2 documents
         }},
         {$out:"hyundai_cars"}
     ])
+
+# Arithmetic Operators
+    - $add
+    - $subtract
+    - $divide
+    - $multiply
+    - $round
+    - $abs
+    - $ceil
+
+    - Sum
+        - db.cars.aggregate([
+            {
+                $project:{
+                    sum:{$add:[2,3]}
+                }
+            }
+        ])
