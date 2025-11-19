@@ -320,3 +320,12 @@ db.cars.find().skip(2)      //Skips first 2 documents
                 }
             }
         ])
+
+    - Print all the cars model and price with hike of 55000(similarly we can use $subtract too)
+
+    - db.cars.aggregate({
+        $project:{
+            model:1,_id:0,
+            new_price:{$add:["$price",55000]}
+        }
+    })
