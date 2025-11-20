@@ -329,3 +329,20 @@ db.cars.find().skip(2)      //Skips first 2 documents
             new_price:{$add:["$price",55000]}
         }
     })
+
+    - AddFields/Set: To add new field in the document
+
+    - db.cars.aggregate({
+        $project:{
+            model:1,
+            _id:0,
+            price:1
+        }},{
+            $addFields:{
+                price_in_lakhs:{
+                    <!-- $divide:["$price",100000] -->
+                    $round:[{$divide:["$price",100000]},1]
+                }
+            }
+        }
+    )
