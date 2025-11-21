@@ -128,6 +128,9 @@ db.cars.find().skip(2)      //Skips first 2 documents
 
 # Aggregate Framework
 
+    - The aggregation pipeline only transforms data in the output.
+    - It does not update documents in the database.
+
     - Filtering
     - Grouping
     - Sorting
@@ -321,7 +324,7 @@ db.cars.find().skip(2)      //Skips first 2 documents
             }
         ])
 
-    - Print all the cars model and price with hike of 55000(similarly we can use $subtract too)
+    Print all the cars model and price with hike of 55000(similarly we can use $subtract too)
 
     - db.cars.aggregate({
         $project:{
@@ -330,7 +333,7 @@ db.cars.find().skip(2)      //Skips first 2 documents
         }
     })
 
-    - AddFields/Set: To add new field in the document
+    AddFields/Set: To add new field in the document
 
     - db.cars.aggregate({
         $project:{
@@ -346,3 +349,76 @@ db.cars.find().skip(2)      //Skips first 2 documents
             }
         }
     )
+
+    Calculate Total service cost of each Hyundai Car
+
+    - db.cars.aggregate([
+        {$match:{maker:"Hyundai"}},
+        {$set:{
+            Total_service_cost:{
+                $sum:"$service_history.cost"
+            }
+        }},
+        {
+            $project:{
+                _id:0,
+                model:1,
+                Total_service_cost:1
+            }
+        }
+    ])
+
+# Conditional Operators
+
+    - $cond
+    - $ifNull
+    - $switch
+
+    Suppose we want to check if a car's fuel_type is "Petrol" and categorize the cars into "Petrol Car"  & "Non-Petrol"
+
+    - db.cars.aggregate([
+       { $project:{
+            _id:0,
+            maker:1,
+            model:1,
+            fuel_cat:{
+                $cond:{
+                    if:{$eq:["$fuel_type","Petrol"]},
+                    then:"Petrol Car",
+                    else:"Non_Petrol Car"
+                }
+            }
+        }}
+    ])
+
+    - $switch
+        - Suppose we want to categorize the price of the car into three categories: "Budget", "Midrange" and "Premium"
+        
+        - db.cars.aggregate([
+            {$project:{
+                _id:0,
+                maker:1,
+                model:1,
+                budget_cat:{
+                    $switch:{
+                        branches:[
+                            {
+                                case:{$lt:["$price",500000]},
+                                then:"Budget"
+                            },
+                            {
+                                case:{
+                                    $and:[{$gte:["$price",500000]},{$lte:["$price",1000000]}]
+                                },
+                                then:"Midrange"
+                            },
+                            {
+                                case:{$gte:["$price",1000000]},
+                                then:"Premium"
+                            }
+                        ],
+                        default:"Unknown"
+                    }
+                }
+            }}
+        ]) 
