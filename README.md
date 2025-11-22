@@ -422,3 +422,28 @@ db.cars.find().skip(2)      //Skips first 2 documents
                 }
             }}
         ]) 
+
+# Date Operators
+
+    - $dateAdd
+    - $dateDiff
+    - $month
+    - $year
+    - $hour
+    - $dateOfMonth
+    - $dayOfYear
+
+    - Example:
+        - db.collection.aggregate([
+            {
+                $project:{
+                    newDate:{
+                        $dateAdd:{
+                            startDate: new Date("2024-08-29"),  //Starting Date
+                            unit:"day",     //Unit to be added
+                            amount:7        //Amount to add
+                        }
+                    }
+                }
+            }
+        ])
