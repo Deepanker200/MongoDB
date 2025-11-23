@@ -1,5 +1,8 @@
 # This repo contains important MongoDB commands
 
+- About 
+MongoDB is mainly based on a document-oriented (JSON-like) model with B-tree indexes.
+
 - Showing DBs
     - show dbs
 
@@ -376,20 +379,21 @@ db.cars.find().skip(2)      //Skips first 2 documents
 
     Suppose we want to check if a car's fuel_type is "Petrol" and categorize the cars into "Petrol Car"  & "Non-Petrol"
 
-    - db.cars.aggregate([
-       { $project:{
-            _id:0,
-            maker:1,
-            model:1,
-            fuel_cat:{
-                $cond:{
-                    if:{$eq:["$fuel_type","Petrol"]},
-                    then:"Petrol Car",
-                    else:"Non_Petrol Car"
+    - $cond
+        - db.cars.aggregate([
+        { $project:{
+                _id:0,
+                maker:1,
+                model:1,
+                fuel_cat:{
+                    $cond:{
+                        if:{$eq:["$fuel_type","Petrol"]},
+                        then:"Petrol Car",
+                        else:"Non_Petrol Car"
+                    }
                 }
-            }
-        }}
-    ])
+            }}
+        ])
 
     - $switch
         - Suppose we want to categorize the price of the car into three categories: "Budget", "Midrange" and "Premium"
@@ -447,3 +451,134 @@ db.cars.find().skip(2)      //Skips first 2 documents
                 }
             }
         ])
+
+# Variables in MongoDB
+
+    - System Generated Variables
+
+    - Print current date and time
+        -  db.cars.aggregate({$project:{_id:0,model:1,date:"$$NOW"}})
+
+    - User Defined Variables: These variables allow us to store values and reuse them within the same pipeline, making the pipeline more readable and efficient in certain scenarios
+
+    $let is used to create temporary variable 
+    -  my_price=1500000 // to directly assign variable to the document
+    - Object.keys(this) //For checking variables assigned and used by MongoDB
+
+# DATA MODELING
+
+    - The two main types of relationships are:
+    1. Embedded Documents(Denormalization)
+    2. Referenced Documents(Normalization)
+
+# Types of Relationship
+    - One to One
+    - One To Many
+    - Many To Many
+
+    # Embedded Documents: In Same Document
+    userA
+        orderA
+        orderB
+
+    //Document size is of 16mb
+    // Only 100 levels deep
+
+    # Referenced Documents: 
+    users
+    - {
+        "_id": "user1",
+        "name": "Amit Sharma",
+        "email": "amit.sharma@example.com",
+        "phone": "+91-987654210",
+        "address": "MG Road, Mumbai, Maharashtra"
+    }
+    orders
+    -  {
+        "_id": "order1",
+        "user_id": "user1",
+        "product": "Laptop",
+        "amount": 50000,
+        "order_date": "2024-08-01"
+    }
+
+    - db.users.aggregate([
+        {
+            $lookup:{
+                "from":"orders",        //The target collection to join with
+                "localField":"_id",     //The field from the 'users' collection
+                "foreignField":"user_id",   //The field from the 'orders' collection
+                "as":"orders"               //The name of the new array field to add to the 'user'
+            }
+        }
+    ])
+    
+    -> Note: We can use $out to store this relationship into a new collection
+
+    - $lookup: Performs a left join with another collection
+
+# Schema Validation
+    - MongoDB uses a JSON Schema format to define the validation rules.
+
+    - db.createCollection("users1",{
+        validator:{
+            $jsonSchema:{
+                bsonType:"object",
+                required:["name","phone"],
+                properties:{
+                    name:{
+                        bsonType:"string",
+                        description:"Name should be string"
+                    }
+                }
+            }
+        }
+    })
+
+    Validation Levels:
+    - strict
+    - moderate
+
+    Validation Actions:
+    - error
+    - warn
+
+# Indexes in MongoDB
+
+    An Index is a data structure that improves the speed of query operations by allowing the database to quickly locate anad access the required data without scanning every document in a collection.
+
+    Stores the indexed field in a sorted order, along with pointers to the actual documents in the collection
+
+    - db.users.createIndex({name:1})
+    - db.users.getIndexes()
+    - db.users.dropIndex("name_1")
+    - db.movies.find({title:"The Ace"}).explain("executionStats")
+
+    -> Types of Indexs
+    1. Single Field Index
+    2. Compound Index
+    3. Unique Index
+    4. TTL Index(Time to Live)  Automatically delete documents from a collection after a specified period. Such as session logs, caching etc
+
+    -> Performance Consideration when using Indexing in MongoDB
+    1. Impact on Write Operations: Increases read but slow down insertions, updations and deletions
+    2. Indexing Large Collections: Slow down the performance
+
+# Transactions 
+    - A Sequence of operations that are executed as a single unit
+    - Maintaining ACID properties across documents and collections
+
+# Sharding
+    - Sharding is a method of distributing data across multiple servers (shards) to enable horizontal scaling, allowing the database to handle large datasets and high-throughput operation efficiently
+
+# Replication
+    - Replication is a group of MongoDB servers that maintain identical copies of data to ensure high availability, redundancy and data durability with one primary node handling writes and multiple secondary nodes replicating the data
+
+# Questions
+Q. Explain how to perform a backup and restore operation in a MongoDB database.
+    - Backup: Use mongodump to create a binary backup of the DB.
+    - Restore: Use mongorestore to restore the data from a backup.
+    Additionally, for cloud deployments, MongoDB Atlas provides automated backups
+
+Q. Explain the role of journaling in MongoDB. How does it help in ensuring durability?
+    - Journaling in MongoDB is a mechanism that logs write operations to a journal file before applying them to the database. In case of a crash, MongoDB can use the journal to recover to a consistent state, ensuring durability of write operations.
