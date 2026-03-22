@@ -30,7 +30,7 @@ MongoDB is mainly based on a document-oriented (JSON-like) model with B-tree ind
     - db.cars.find({fuel_type:"Diesel"},"{name:0})          //Except name it gives all details of the car whose fuel_type is Diesel    
 
     - db.cars.find({features:"Sunroof"})        //features is an array inside document
-    - db.cars.find({"engine.type":"Turbocharged"})      //engine is an object inside document(Objec/Nested Document)
+    - db.cars.find({"engine.type":"Turbocharged"})      //engine is an object inside document(Object/Nested Document)
 
 # Update
 - db.cars.updateOne({model:"XUV"},{$set:{color:"Pink"}})        //sets new field or add if not existed in the existing document
@@ -43,13 +43,15 @@ MongoDB is mainly based on a document-oriented (JSON-like) model with B-tree ind
 
 - db.cars.updateOne({model:"Nexon"},{$push:{features:{$each:["Wireless Charging","Voice Control"]}}})   //For adding new values to the array
 - db.cars.updateOne({model:"Nexon"},{$unset:{color:""}})        //For removing or unset the field
+
 - db.cars.updateMany({},{$set:{color:"Blue"}})
 - db.cars.updateOne({model:"Venue"},{$set:{color:"Black"}},{upsert:true})   //Creates new document if not existed
 
 # Delete
 
--db.cars.deleteOne({model:"Venue"})
+- db.cars.deleteOne({model:"Venue"})
 - db.cars.deleteMany({color:"Black"})
+- db.cars.deleteMany({})        //Deleting all data
 
 # Data Types
 - ObjectId
@@ -72,7 +74,7 @@ MongoDB is mainly based on a document-oriented (JSON-like) model with B-tree ind
     - $lte <=
     - $gte >=
     - $ne !=
-    - $in   db.cars.find({"engine.cc":{$in:[1400,1598]}})       //Checks one field against multiple possible values.
+    - $in   db.cars.find({"engine.cc":{$in:[1400,1598]}})       //Checks one field against multiple possible values.    //Either 1400 or 1598
     - $nin
 
 - Logical Operators
@@ -94,14 +96,14 @@ MongoDB is mainly based on a document-oriented (JSON-like) model with B-tree ind
     - NOR
     - NOT
 
-- Element Operators
+# Element Operators
     - exists operator
     db.cars.find({fuel_type:{$exists:true}})        //It will fetch data that has fuel_type field in the document
 
     - $type
     db.cars.find({name:{$type:"string"}})       //If int then no data will be fetched
 
-    // Here we can filter the content based on BASON type like string, bool etc
+    // Here we can filter the content based on BSON type like string, bool etc
     // This can be useful to find field with null values
     // {name:{$type:"string"}}
 
@@ -115,7 +117,8 @@ MongoDB is mainly based on a document-oriented (JSON-like) model with B-tree ind
     db.cars.find({features:{$all:['Bluetooth','ABS']}})
 
 
-# Cursor Methods
+# Cursor Methods- It points to the result set and lets us iterate, modify, or control how data is returned.
+
 - Count
 db.cars.find().count()
 db.cars.find({fuel_type:"Petrol"}).count()
@@ -154,6 +157,8 @@ db.cars.find().skip(2)      //Skips first 2 documents
             }
         }
         ])
+
+        In $group, every field except _id must use an accumulator operator like:
 
         - Accumulator Operators
 
@@ -253,7 +258,7 @@ db.cars.find().skip(2)      //Skips first 2 documents
         )
     
     - unwind
-        - db.cars.unwind([{$unwind:"$owners"}]) //to make seperate documents having 2 or 3 owners
+        - db.cars.aggregate([{$unwind:"$owners"}]) //to make seperate documents having 2 or 3 owners
     
 # String Operators
     - db.cars.aggregate([
